@@ -10,12 +10,11 @@ using Android.OS;
 using Android.Support.V4.Media.Session;
 using Plugin.MediaManager.Abstractions;
 using Plugin.MediaManager.Abstractions.EventArguments;
+using Plugin.MediaManager.MediaBrowserServiceImplementation;
 
 namespace Plugin.MediaManager
 {
-    [Service]
-    [IntentFilter(new[] { ActionPlay, ActionPause, ActionStop, ActionTogglePlayback, ActionNext, ActionPrevious })]
-    public class MediaPlayerService : MediaServiceBase,
+    public class MediaPlayerPlayback : MediaPlaybackBase,
         MediaPlayer.IOnBufferingUpdateListener,
         MediaPlayer.IOnCompletionListener,
         MediaPlayer.IOnErrorListener,
@@ -89,11 +88,9 @@ namespace Plugin.MediaManager
             _mediaPlayer.SetOnPreparedListener(this);
         }
 
-        [Obsolete("deprecated")]
-        public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
+        public MediaPlayerPlayback(AudioService service) : base(service)
         {
-            HandleIntent(intent);
-            return base.OnStartCommand(intent, flags, startId);
+            
         }
 
         #region ****************** MediaPlayer Actions ******************
@@ -182,7 +179,7 @@ namespace Plugin.MediaManager
                     if (_mediaPlayer == null)
                         return false;
 
-                    String uri = GetUriFromPath(ApplicationContext, CurrentFile.Url);
+                    string uri = GetUriFromPath(ApplicationContext, CurrentFile.Url);
                     _mediaPlayer.Reset();
                     try
                     {
@@ -228,12 +225,12 @@ namespace Plugin.MediaManager
             await base.Pause();
         }
 
-        public override async Task Stop()
+        public override Task Stop()
         {
             try
             {
                 if (_mediaPlayer == null)
-                    return;
+                    return Task.CompletedTask;
 
                 if (_mediaPlayer.IsPlaying)
                 {
@@ -245,7 +242,8 @@ namespace Plugin.MediaManager
             {
                 Console.WriteLine(ex.Message);
             }
-            await base.Stop();
+
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -321,16 +319,6 @@ namespace Plugin.MediaManager
 
         #endregion
 
-        public override void OnDestroy()
-        {
-            if (_mediaPlayer != null)
-            {
-                _mediaPlayer.Release();
-                _mediaPlayer = null;
-            }
-
-            base.OnDestroy();
-        }
 
         private void DisposeMediaPlayer()
         {
@@ -339,6 +327,13 @@ namespace Plugin.MediaManager
             _mediaPlayer?.Dispose();
             _mediaPlayer = null;
         }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IntPtr Handle { get; }
     }
 
 }

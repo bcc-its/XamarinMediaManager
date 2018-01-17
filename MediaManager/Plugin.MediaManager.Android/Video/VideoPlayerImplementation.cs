@@ -75,9 +75,7 @@ namespace Plugin.MediaManager
 
         private IVideoSurface _renderSurface;
         public IVideoSurface RenderSurface { 
-            get {
-                return _renderSurface;
-            } 
+            get => _renderSurface;
             set {
                 if (!(value is VideoSurface))
                     throw new ArgumentException("Not a valid video surface");
@@ -89,14 +87,8 @@ namespace Plugin.MediaManager
 
 		private VideoAspectMode _aspectMode;
 		public VideoAspectMode AspectMode { 
-			get
-			{
-				return _aspectMode;
-			}
-			set {
-				//TODO: Wrap videoplayer to respect aspectmode
-				_aspectMode = value;
-			} 
+			get => _aspectMode;
+		    set => _aspectMode = value;
 		}
 
         VideoView VideoViewCanvas => RenderSurface as VideoView;
@@ -161,7 +153,7 @@ namespace Plugin.MediaManager
 		private MediaPlayerStatus _status = MediaPlayerStatus.Stopped;
         public MediaPlayerStatus Status
         {
-            get { return _status; }
+            get => _status;
             private set
             {
                 _status = value;
@@ -263,7 +255,7 @@ namespace Plugin.MediaManager
         {
 			Stop().Wait();
             Status = MediaPlayerStatus.Failed;
-			OnMediaFailed(new MediaFailedEventArgs(what.ToString(), new System.Exception()));
+			OnMediaFailed(new MediaFailedEventArgs(what.Tostring(), new System.Exception()));
             return true;
         }
 

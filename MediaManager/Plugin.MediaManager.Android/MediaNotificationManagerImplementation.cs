@@ -8,11 +8,18 @@ using Android.Support.V4.App;
 using Android.Support.V4.Media;
 using Android.Support.V4.Media.Session;
 using Plugin.MediaManager.Abstractions;
+using Plugin.MediaManager.MediaBrowserServiceImplementation;
 
 namespace Plugin.MediaManager
 {
     public class MediaNotificationManagerImplementation : IMediaNotificationManager
     {
+
+        public MediaNotificationManagerImplementation(AudioService service)
+        {
+            
+        }
+
         public void StartNotification(IMediaFile mediaFile)
         {
             /*if (mediaSessionCompat == null)
