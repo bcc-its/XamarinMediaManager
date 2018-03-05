@@ -5,6 +5,7 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.Graphics;
+using Android.OS;
 using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Support.V4.Media.Session;
@@ -57,19 +58,31 @@ namespace Plugin.MediaManager
             _notificationStyle.SetMediaSession(_sessionToken);
             _notificationStyle.SetCancelButtonIntent(_pendingCancelIntent);
 
-            _builder = new NotificationCompat.Builder(_appliactionContext)
-            {
-                MStyle = _notificationStyle
-            };
+            _builder = new NotificationCompat.Builder(_appliactionContext);
             _builder.SetSmallIcon(icon != 0 ? icon : _appliactionContext.ApplicationInfo.Icon);
             _builder.SetContentIntent(_pendingIntent);
             _builder.SetOngoing(mediaIsPlaying);
             _builder.SetVisibility(1);
 
+            if (Build.Manufacturer.ToUpper() == "HUAWEI" &&
+                (Build.VERSION.SdkInt == BuildVersionCodes.Lollipop ||
+                 Build.VERSION.SdkInt == BuildVersionCodes.LollipopMr1))
+            {
+                // Custom media styles are not supported on some Huawei devices. It causes a RemoteServiceException: https://appcenter.ms/orgs/BCC-IT-Services/apps/BMM-Android/crashes/groups/e3d2f69acd6ea211f2fa9a0f6563e6cd9ddd9bec/crashes/195d8b23-4ca4-4d3b-8563-5218f37b8f15/raw
+                // Also see https://stackoverflow.com/questions/46771521/android-app-remoteserviceexception-bad-notification-posted-on-huawei-y6
+                // Therefore we don't set a custom style for those devices. It might be that we exclude too many devices but I think that's acceptable
+            }
+            else
+            {
+                _builder.SetStyle(_notificationStyle);
+            }
+
             SetMetadata(mediaFile);
             AddActionButtons(mediaIsPlaying);
             if (_builder.MActions.Count >= 3)
-                ((NotificationCompat.MediaStyle)(_builder.MStyle)).SetShowActionsInCompactView(0, 1, 2);
+            {
+                (_builder.MStyle as NotificationCompat.MediaStyle)?.SetShowActionsInCompactView(0, 1, 2);
+            }
 
             NotificationManagerCompat.From(_appliactionContext)
                 .Notify(MediaServiceBase.NotificationId, _builder.Build());
