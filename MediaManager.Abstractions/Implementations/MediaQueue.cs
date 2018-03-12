@@ -44,13 +44,8 @@ namespace Plugin.MediaManager.Abstractions.Implementations
         public IMediaFile Current
         {
             get
-            {
-                if (Count > 0 && Index >= 0)
-                {
-                    return _queue[Index];
-                }
-
-                return null;
+            {               
+                return _current;
             }
         }
 
@@ -414,13 +409,13 @@ namespace Plugin.MediaManager.Abstractions.Implementations
                     if (Count - 1 >= Index && Index >= 0)
                     {
                         current = _queue[Index];
-                    }
 
-                    if (_current != current)
-                    {
-                        _current = current;
-                        OnPropertyChanged(nameof(Current));
-                        QueueMediaChanged?.Invoke(this, new QueueMediaChangedEventArgs(Current));
+                        if (_current != current)
+                        {
+                            _current = current;
+                            OnPropertyChanged(nameof(Current));
+                            QueueMediaChanged?.Invoke(this, new QueueMediaChangedEventArgs(Current));
+                        }
                     }
                 });
 
